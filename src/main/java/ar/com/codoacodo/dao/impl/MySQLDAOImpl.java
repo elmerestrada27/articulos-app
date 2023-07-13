@@ -97,8 +97,27 @@ public class MySQLDAOImpl implements DAO {
 
   @Override
   public ArrayList<Articulo> findAll() throws Exception{
-      String sql = "select * from "+this.tableName+"";
+      String sql = "select * from "+this.tableName+"";			
+      return findGeneral (sql);
+  }
+  
+  @Override
+  public ArrayList<Articulo> findAllByTitle(String clave) throws Exception {
+	  String sql = "select * from "+this.tableName+ " where UPPER(titulo) like '%"+clave.toUpperCase()+"%'";
+      return findGeneral(sql);
+  }
 
+  private Date dateFrom(LocalDateTime ldt) {
+      java.util.Date date = Date.from(ldt.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+      return new java.sql.Date(date.getTime());
+  }
+  
+  public LocalDateTime fromDateToLocalDateTime(Date date) {
+	LocalDateTime ldt = LocalDateTime.ofInstant(date.toInstant(),ZoneId.systemDefault());
+	return ldt;
+  }
+  
+  private ArrayList<Articulo> findGeneral (String sql) throws Exception {
       //Obtener la Conection
       Connection con = AdministradorDeConexiones.getConnection();
 
@@ -122,21 +141,11 @@ public class MySQLDAOImpl implements DAO {
           listado.add(new Articulo(id, titulo, imagen, autor, false, LocalDateTime.now(), codigo, precio));
       }					
       return listado;
+	  
   }
   
-  @Override
-  public ArrayList<Articulo> findAllByTitle(String clave) throws Exception {
-	  return null;
-  }
-
-  private Date dateFrom(LocalDateTime ldt) {
-      java.util.Date date = Date.from(ldt.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-      return new java.sql.Date(date.getTime());
-  }
   
-  public LocalDateTime fromDateToLocalDateTime(Date date) {
-	LocalDateTime ldt = LocalDateTime.ofInstant(date.toInstant(),ZoneId.systemDefault());
-	return ldt;
-  }
+  
+  
 
 }
