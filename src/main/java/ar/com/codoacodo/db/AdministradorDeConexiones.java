@@ -19,6 +19,7 @@ public class AdministradorDeConexiones {
 			connection = DriverManager.getConnection(url, username, password);
 			System.out.println("Conexion a base exitosa");
 		}catch(Exception e) {
+			System.out.println("Error al conectarse a la base de datos");
 			connection = null;
 		}
 		return connection;

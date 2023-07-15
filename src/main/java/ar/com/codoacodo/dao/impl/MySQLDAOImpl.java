@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class MySQLDAOImpl implements DAO {
       pst.setString(1,articulo.getTitulo());
       pst.setString(2,articulo.getAutor());
       pst.setDouble(3,articulo.getPrecio());
-      pst.setDate(4, this.dateFrom(articulo.getFechaCreacion()));	//fecha LocalDateTime > jdbc > java.sql.Date
+      pst.setTimestamp(4, Timestamp.valueOf(articulo.getFechaCreacion()));
       pst.setInt(5,articulo.isNovedad() ? 1 : 0);        
       pst.setString(6,articulo.getCodigo());        
 
@@ -43,7 +44,7 @@ public class MySQLDAOImpl implements DAO {
 
   @Override
   public void update(Articulo articulo) throws Exception {
-      String sql = "update "+this.tableName+" set titulo= ?, autor= ?, precio= ? where id="+articulo.getId();
+      String sql = "update "+this.tableName+" set titulo= ?, autor= ?, precio= ?, fechaCreacion=? where id="+articulo.getId();
       
       Connection con = AdministradorDeConexiones.getConnection();
       PreparedStatement pst = con.prepareStatement(sql);
@@ -52,6 +53,7 @@ public class MySQLDAOImpl implements DAO {
       pst.setString(1,articulo.getTitulo());
       pst.setString(2,articulo.getAutor());
       pst.setDouble(3,articulo.getPrecio());
+      pst.setTimestamp(4, Timestamp.valueOf(articulo.getFechaCreacion()));
       
       //RestultSet
       pst.executeUpdate();//INSERT/UPDATE/DELETE
@@ -86,11 +88,11 @@ public class MySQLDAOImpl implements DAO {
           String imagen = res.getString(3);
           String autor = res.getString(4);
           String novedad = res.getString(5);
-          Date fechaCreacion = res.getDate(6);
+          LocalDateTime fechaCreacion = res.getTimestamp(6).toLocalDateTime();
           String codigo = res.getString(7);
           Double precio = res.getDouble(8);
 
-          articulo = new Articulo(_id, titulo, imagen, autor, precio, false, codigo, LocalDateTime.now());
+          articulo = new Articulo(_id, titulo, imagen, autor, precio, false, codigo, fechaCreacion);
       }
       return articulo;
   }
@@ -107,10 +109,10 @@ public class MySQLDAOImpl implements DAO {
       return findGeneral(sql);
   }
 
-  private Date dateFrom(LocalDateTime ldt) {
-      java.util.Date date = Date.from(ldt.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-      return new java.sql.Date(date.getTime());
-  }
+//  private Date dateFrom(LocalDateTime ldt) {
+//      java.util.Date date = Date.from(ldt.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+//      return new java.sql.Date(date.getTime());
+//  }
   
   public LocalDateTime fromDateToLocalDateTime(Date date) {
 	LocalDateTime ldt = LocalDateTime.ofInstant(date.toInstant(),ZoneId.systemDefault());
@@ -134,11 +136,11 @@ public class MySQLDAOImpl implements DAO {
           String imagen = res.getString(3);
           String autor = res.getString(4);
           String novedad = res.getString(5);
-          Date fechaCreacion = res.getDate(6);
+          LocalDateTime fechaCreacion = res.getTimestamp(6).toLocalDateTime();
           String codigo = res.getString(7);
           Double precio = res.getDouble(8);
 
-          listado.add(new Articulo(id, titulo, imagen, autor, false, LocalDateTime.now(), codigo, precio));
+          listado.add(new Articulo(id, titulo, imagen, autor, false, fechaCreacion, codigo, precio));
       }					
       return listado;
 	  
